@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="DIALOG TITLE"
+    Title="MY FACE PLUS"
     PrimaryButtonText="sign in"  
     SecondaryButtonText="cancel"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
@@ -16,13 +16,5 @@
         <TextBox Name="email" Header="Email address"/>
         <PasswordBox  Name="password" Header="Password"/>
         <CheckBox Name="showPassword" Content="Show password"/>
-
-        <!-- Content body -->
-        <TextBlock Name="body" Style="{StaticResource MessageDialogContentStyle}" TextWrapping="Wrap">
-            <TextBlock.Text>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </TextBlock.Text>
-        </TextBlock>
     </StackPanel>
 </ContentDialog>

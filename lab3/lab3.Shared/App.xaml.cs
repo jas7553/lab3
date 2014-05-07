@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using lab3.Common;
+using System.Diagnostics;
 
 // The Universal Hub Application project template is documented at http://go.microsoft.com/fwlink/?LinkID=391955
 
@@ -29,6 +30,8 @@ namespace lab3
 #if WINDOWS_PHONE_APP
         private TransitionCollection transitions;
 #endif
+        private Popup popup;
+        private MyUserControl1 login;
 
         /// <summary>
         /// Initializes the singleton instance of the <see cref="App"/> class. This is the first line of authored code
@@ -56,6 +59,15 @@ namespace lab3
 #endif
 
             Frame rootFrame = Window.Current.Content as Frame;
+
+            this.popup = new Popup();
+            var login = new MyUserControl1();
+            login.loginClicked += Login_loginClicked;
+            this.popup.Child = login;
+            this.popup.IsOpen = true;
+
+            LocationUpdatesManager lum = new LocationUpdatesManager();
+            lum.start();
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
@@ -116,6 +128,11 @@ namespace lab3
 
             // Ensure the current window is active
             Window.Current.Activate();
+        }
+
+        void Login_loginClicked(object sender, EventArgs e)
+        {
+            this.popup.IsOpen = false;
         }
 
 #if WINDOWS_PHONE_APP
