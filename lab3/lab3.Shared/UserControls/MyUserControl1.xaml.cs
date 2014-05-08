@@ -26,9 +26,27 @@ namespace lab3
             this.InitializeComponent();
         }
 
-        private void btnOK_Click(object sender, RoutedEventArgs e)
+        async private void btnOK_Click(object sender, RoutedEventArgs e)
         {
-            this.loginClicked(null, null);
+            string username = emailAddressTextBox.Text;
+            string password = passwordTextBox.Password;
+
+            var parameters = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("command", "setLocation"),
+                        new KeyValuePair<string, string>("email", username),
+                        new KeyValuePair<string, string>("password", password)
+                    };
+            var response = await API.sendCommand(parameters);
+            if (response.Equals("Invalid user"))
+            {
+                errorTextBlock.Visibility = Visibility.Visible;
+                errorTextBlock.Text = "Bad Login";
+            }
+            else
+            {
+                this.loginClicked(null, null);
+            }
         }
     }
 }

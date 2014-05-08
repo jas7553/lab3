@@ -66,9 +66,6 @@ namespace lab3
             this.popup.Child = login;
             this.popup.IsOpen = true;
 
-            LocationUpdatesManager lum = new LocationUpdatesManager();
-            lum.start();
-
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
             if (rootFrame == null)

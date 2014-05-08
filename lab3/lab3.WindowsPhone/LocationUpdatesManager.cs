@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Device.Location;
+using Windows.Devices.Geolocation;
 using System.Diagnostics;
 
 namespace lab3.Common
 {
     class LocationUpdatesManager
     {
-        GeoCoordinateWatcher watcher;
-
+        //GeoLocator watcher;
+        /*
         public void start()
         {
             Debug.WriteLine("Starting...");
             watcher = new GeoCoordinateWatcher(GeoPositionAccuracy.High); // using high accuracy
-            //watcher.MovementThreshold = 20; // use MovementThreshold to ignore noise in the signal
-            //watcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(watcher_StatusChanged);
-            //watcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(watcher_PositionChanged);
-            //watcher.Start();
+            watcher.MovementThreshold = 20; // use MovementThreshold to ignore noise in the signal
+            watcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(watcher_StatusChanged);
+            watcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(watcher_PositionChanged);
+            watcher.Start();
         }
 
         // Event handler for the GeoCoordinateWatcher.StatusChanged event.
@@ -69,7 +69,7 @@ namespace lab3.Common
         public void Stop()
         {
             watcher.Stop();
-        }
+        }*/
 
 
     }

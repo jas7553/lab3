@@ -75,6 +75,28 @@ namespace lab3.Data
     }
 
     /// <summary>
+    /// Generic user data model.
+    /// </summary>
+    public class User
+    {
+        public User(String firstName, String lastName, String email)
+        {
+            this.FirstName = firstName;
+            this.LastName = lastName;
+            this.Email = email;
+        }
+
+        public string FirstName { get; private set; }
+        public string LastName { get; private set; }
+        public string Email { get; private set; }
+
+        public override string ToString()
+        {
+            return this.FirstName + " " + this.LastName;
+        }
+    }
+
+    /// <summary>
     /// Creates a collection of groups and items with content read from a static json file.
     /// 
     /// SampleDataSource initializes with data read from a static json file included in the 
@@ -88,6 +110,12 @@ namespace lab3.Data
         public ObservableCollection<SampleDataGroup> Groups
         {
             get { return this._groups; }
+        }
+
+        private ObservableCollection<User> _users = new ObservableCollection<User>();
+        public ObservableCollection<User> Users
+        {
+            get { return this._users; }
         }
 
         public static async Task<IEnumerable<SampleDataGroup>> GetGroupsAsync()
@@ -113,6 +141,13 @@ namespace lab3.Data
             var matches = _sampleDataSource.Groups.SelectMany(group => group.Items).Where((item) => item.UniqueId.Equals(uniqueId));
             if (matches.Count() == 1) return matches.First();
             return null;
+        }
+
+        public static async Task<IEnumerable<User>> GetUsersAsync()
+        {
+            await _sampleDataSource.GetUsersAsyncc();
+
+            return _sampleDataSource.Users;
         }
 
         private async Task GetSampleDataAsync()
@@ -147,6 +182,31 @@ namespace lab3.Data
                                                        itemObject["Content"].GetString()));
                 }
                 this.Groups.Add(group);
+            }
+        }
+
+        private async Task GetUsersAsyncc()
+        {
+            if (this._users.Count != 0)
+                return;
+            
+            var parameters = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("command", "getUsers"),
+                        new KeyValuePair<string, string>("email", "derp@derp.gov"),
+                        new KeyValuePair<string, string>("password", "password"),
+                    };
+            string jsonText = await API.sendCommand(parameters);
+            JsonArray jsonArray = JsonArray.Parse(jsonText);
+
+            foreach (JsonValue groupValue in jsonArray)
+            {
+                JsonObject groupObject = groupValue.GetObject();
+                User user = new User(groupObject["first_name"].GetString(),
+                                     groupObject["last_name"].GetString(),
+                                     groupObject["email"].GetString());
+                
+                this.Users.Add(user);
             }
         }
     }

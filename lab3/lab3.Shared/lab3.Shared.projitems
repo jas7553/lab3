@@ -15,11 +15,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)Common\LocationUpdatesManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\API.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\SampleDataSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\UserViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UserControls\MyUserControl1.xaml.cs">
       <DependentUpon>MyUserControl1.xaml</DependentUpon>
     </Compile>
+    <Content Include="$(MSBuildThisFileDirectory)DataModel\SampleData2.json" />
     <Content Include="$(MSBuildThisFileDirectory)DataModel\SampleData.json" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\LightGray.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\MediumGray.png" />

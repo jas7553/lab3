@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
-    d:DataContext="{Binding Source={d:DesignData Source=../lab3.Shared/DataModel/SampleData.json, Type=data:SampleDataSource}}"
+    d:DataContext="{Binding Source={d:DesignData Source=../lab3.Shared/DataModel/SampleData2.json, Type=data:SampleDataSource}}"
     xmlns:data="using:lab3.Data"
     mc:Ignorable="d">
 
@@ -20,74 +20,30 @@
                     <ImageBrush x:Key="HubBackgroundImageBrush" ImageSource="{x:Null}"/>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
-
-            <!-- Grid-appropriate item template as seen in section 2 -->
-            <DataTemplate x:Key="Standard200x180TileItemTemplate">
-                <Grid Width="180">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="173" Width="173" Grid.Row="0" HorizontalAlignment="Left">
-                        <Image Source="{Binding ImagePath}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}" Height="173" Width="173"/>
-                    </Border>
-                    <TextBlock Text="{Binding Title}" Style="{ThemeResource BaseTextBlockStyle}" Typography.Capitals="SmallCaps" Grid.Row="1" Margin="0,12,0,0" IsTextScaleFactorEnabled="False"/>
-                </Grid>
-            </DataTemplate>
-
-            <DataTemplate x:Key="StandardTripleLineItemTemplate">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="99" Width="99" Grid.Column="0" HorizontalAlignment="Left">
-                        <Image Source="{Binding ImagePath}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}" Height="99" Width="99"/>
-                    </Border>
-                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
-                        <TextBlock Text="{Binding Title}" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
-                        <TextBlock Text="{Binding Subtitle}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
-                        <TextBlock Text="{Binding Description}" Style="{ThemeResource ListViewItemContentTextBlockStyle}"/>
-                    </StackPanel>
-                </Grid>
-            </DataTemplate>
-
-            <DataTemplate x:Key="StandardDoubleLineItemTemplate">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="99" Width="99" Grid.Column="0" HorizontalAlignment="Left">
-                        <Image Source="{Binding ImagePath}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}" Height="99" Width="99"/>
-                    </Border>
-                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
-                        <TextBlock Text="{Binding Title}" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
-                        <TextBlock Text="{Binding Subtitle}" Style="{ThemeResource ListViewItemContentTextBlockStyle}"/>
-                    </StackPanel>
-                </Grid>
-            </DataTemplate>
         </ResourceDictionary>
     </Page.Resources>
 
     <Grid x:Name="LayoutRoot">
-        
         <Hub x:Name="Hub" x:Uid="Hub" Header="Lab 03" Background="{ThemeResource HubBackgroundImageBrush}">
 
-            <HubSection x:Uid="HubSection3" Header="SECTION 3"
-                        DataContext="{Binding Groups[1]}">
+            <HubSection x:Uid="HubSection4" Header="Conversations">
                 <DataTemplate>
                     <ListView 
-                        AutomationProperties.AutomationId="ItemListViewSection3"
+                        AutomationProperties.AutomationId="ItemListViewSection4"
                         AutomationProperties.Name="Items In Group"
                         SelectionMode="None"
                         IsItemClickEnabled="True"
-                        ItemsSource="{Binding Items}"
-                        ItemTemplate="{StaticResource StandardTripleLineItemTemplate}"
+                        ItemsSource="{Binding Users}"
                         ItemClick="ItemView_ItemClick"
                         ContinuumNavigationTransitionInfo.ExitElementContainer="True">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding FirstName}" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
+                                    <TextBlock Text="{Binding LastName}" Style="{ThemeResource ListViewItemContentTextBlockStyle}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
                     </ListView>
                 </DataTemplate>
             </HubSection>
@@ -114,7 +70,8 @@
                     </ListView>
                 </DataTemplate>
             </HubSection>
-            
+
         </Hub>
+        <Button Width="100" Margin="111,493,0,90" HorizontalContentAlignment="Center" x:Name="btnOK" Content="Login" Click="btnOK_Click"/>
     </Grid>
 </Page>
