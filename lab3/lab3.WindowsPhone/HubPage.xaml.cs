@@ -26,6 +26,14 @@ using System.Diagnostics;
 using Windows.Devices.Geolocation;
 using Newtonsoft.Json.Linq;
 //using Microsoft.Phone.Notification;
+using Windows.Networking.PushNotifications; 
+
+using Windows.UI;
+using Windows.UI.Popups;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
+using System;
 
 // The Universal Hub Application project template is documented at http://go.microsoft.com/fwlink/?LinkID=391955
 
@@ -39,8 +47,6 @@ namespace lab3
         private readonly NavigationHelper navigationHelper;
         private readonly ObservableDictionary defaultViewModel = new ObservableDictionary();
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
-
-        private Geolocator locator;
 
         private Windows.UI.Xaml.Shapes.Rectangle fence;
         private BasicGeoposition fencePos;
@@ -64,41 +70,7 @@ namespace lab3
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
 
-            /*
-            // Try to find the push channel.
-            pushChannel = HttpNotificationChannel.Find(channelName);
-
-            // If the channel was not found, then create a new connection to the push service.
-            if (pushChannel == null)
-            {
-                pushChannel = new HttpNotificationChannel(channelName);
-
-                // Register for all the events before attempting to open the channel.
-                pushChannel.ChannelUriUpdated += new EventHandler<NotificationChannelUriEventArgs>(PushChannel_ChannelUriUpdated);
-                pushChannel.ErrorOccurred += new EventHandler<NotificationChannelErrorEventArgs>(PushChannel_ErrorOccurred);
-
-                // Register for this notification only if you need to receive the notifications while your application is running.
-                pushChannel.ShellToastNotificationReceived += new EventHandler<NotificationEventArgs>(PushChannel_ShellToastNotificationReceived);
-
-                pushChannel.Open();
-
-                // Bind this new channel for toast events.
-                pushChannel.BindToShellToast();
-            }
-            else
-            {
-                // The channel was already open, so just register for all the events.
-                pushChannel.ChannelUriUpdated += new EventHandler<NotificationChannelUriEventArgs>(PushChannel_ChannelUriUpdated);
-                pushChannel.ErrorOccurred += new EventHandler<NotificationChannelErrorEventArgs>(PushChannel_ErrorOccurred);
-
-                // Register for this notification only if you need to receive the notifications while your application is running.
-                pushChannel.ShellToastNotificationReceived += new EventHandler<NotificationEventArgs>(PushChannel_ShellToastNotificationReceived);
-
-                // Display the URI for testing purposes. Normally, the URI would be passed back to your web service at this point.
-                System.Diagnostics.Debug.WriteLine(pushChannel.ChannelUri.ToString());
-                apiSetPush(pushChannel.ChannelUri.ToString());
-            }
-            */
+            registerPush();            
 
             // Hub is only supported in Portrait orientation
             DisplayInformation.AutoRotationPreferences = DisplayOrientations.Portrait;
@@ -108,19 +80,23 @@ namespace lab3
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
+        }
 
-            locator = new Geolocator();
-            locator.MovementThreshold = 1;
-            locator.StatusChanged += (sender, args) =>
-            {
-                Debug.WriteLine("StatusChanged");
-            };
-            locator.PositionChanged += (sender, args) =>
-            {
-                Debug.WriteLine("PositionChanged");
-                Debug.WriteLine(args);
-                apiSetLocation(args.Position.Coordinate.Latitude.ToString(), args.Position.Coordinate.Longitude.ToString(), args.Position.Coordinate.Accuracy.ToString());
-            };
+        async private void registerPush()
+        {
+            PushNotificationChannel channel = await PushNotificationChannelManager.CreatePushNotificationChannelForApplicationAsync();
+            channel.PushNotificationReceived += channel_PushNotificationReceived;
+            var parameters = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("command", "setPush"),
+                        new KeyValuePair<string, string>("pushUrl", channel.Uri.ToString())
+                    };
+            var response = await API.sendCommand(parameters);
+        }
+
+        void channel_PushNotificationReceived(PushNotificationChannel sender, PushNotificationReceivedEventArgs args)
+        {
+            throw new System.NotImplementedException();
         }
 
         /// <summary>
@@ -203,13 +179,6 @@ namespace lab3
             {
                 throw new Exception(this.resourceLoader.GetString("NavigationFailedExceptionMessage"));
             }
-            /*
-            var itemId = ((SampleDataItem)e.ClickedItem).UniqueId;
-            if (!Frame.Navigate(typeof(ItemPage), itemId))
-            {
-                throw new Exception(this.resourceLoader.GetString("NavigationFailedExceptionMessage"));
-            }
-            */
         }
 
         #region NavigationHelper registration
@@ -237,28 +206,9 @@ namespace lab3
         }
 
         #endregion
-
-        private async void btnOK_Click(object sender, RoutedEventArgs e)
-        {
-            apiSetLocation();
-        }
-
-        private async void apiSetLocation()
-        {
-            Geoposition position = await locator.GetGeopositionAsync();
-            var parameters = new List<KeyValuePair<string, string>>
-                    {
-                        new KeyValuePair<string, string>("command", "setLocation"),
-                        new KeyValuePair<string, string>("lat", position.Coordinate.Latitude.ToString()),
-                        new KeyValuePair<string, string>("long", position.Coordinate.Longitude.ToString()),
-                        new KeyValuePair<string, string>("acc", position.Coordinate.Accuracy.ToString())
-                    };
-            var response = await API.sendCommand(parameters);
-        }
-
+        
         private async void apiSetLocation(string latitude, string longitude, string accuracy)
         {
-            Geoposition position = await locator.GetGeopositionAsync();
             var parameters = new List<KeyValuePair<string, string>>
                     {
                         new KeyValuePair<string, string>("command", "setLocation"),
@@ -269,71 +219,28 @@ namespace lab3
             var response = await API.sendCommand(parameters);
         }
 
-        private async void apiSetPush(string push)
-        {
-            Geoposition position = await locator.GetGeopositionAsync();
-            var parameters = new List<KeyValuePair<string, string>>
-                    {
-                        new KeyValuePair<string, string>("command", "setPush"),
-                        new KeyValuePair<string, string>("pushUrl", push)
-                    };
-            var response = await API.sendCommand(parameters);
-        }
-
-        /*
-        /// #pragma mark - PushChannel methods
-
-        /// <summary>
-        /// Event handler for when the push channel Uri is updated.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void PushChannel_ChannelUriUpdated(object sender, NotificationChannelUriEventArgs e)
-        {
-            // Display the new URI for testing purposes.   Normally, the URI would be passed back to your web service at this point.
-            System.Diagnostics.Debug.WriteLine(e.ChannelUri.ToString());
-            apiSetPush(e.ChannelUri.ToString());
-        }
-
-        /// <summary>
-        /// Event handler for when a push notification error occurs.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void PushChannel_ErrorOccurred(object sender, NotificationChannelErrorEventArgs e)
-        {
-            // Error handling logic for your particular application would be here.
-        }
-
-        /// <summary>
-        /// Event handler for when a toast notification arrives while your application is running.  
-        /// The toast will not display if your application is running so you must add this
-        /// event handler if you want to do something with the toast notification.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void PushChannel_ShellToastNotificationReceived(object sender, NotificationEventArgs e)
-        {
-        }
-        */
-
-        
         private void MyMap_OnLoaded(object sender, RoutedEventArgs e)
         {
-
             Geolocator locator = new Geolocator();
-            locator.PositionChanged += (sender2, args) => { };
+            locator.ReportInterval = 1000;
+            locator.MovementThreshold = 1;
+            locator.PositionChanged += (sender2, args) => {
+                string la = args.Position.Coordinate.Latitude.ToString();
+                string lo = args.Position.Coordinate.Longitude.ToString();
+                string ac = args.Position.Coordinate.Accuracy.ToString();
+                apiSetLocation(la, lo, ac);
+            };
 
-            myMap = (MapControl) sender;
-            myMap.Center = new Geopoint(    new BasicGeoposition() { Altitude = 643, Latitude = 43.089863, Longitude = -77.669609 });
+            myMap = (MapControl)sender;
+            myMap.Center = new Geopoint(new BasicGeoposition() { Altitude = 643, Latitude = 43.089863, Longitude = -77.669609 });
             myMap.ZoomLevel = 14;
-      //      MapIcon1 = new MapIcon();
-            fencePos = new BasicGeoposition() {Latitude = 43.089863, Longitude = -77.669609};
+            //      MapIcon1 = new MapIcon();
+            fencePos = new BasicGeoposition() { Latitude = 43.089863, Longitude = -77.669609 };
             Geopoint point = new Geopoint(fencePos);
 
 
             fence = new Windows.UI.Xaml.Shapes.Rectangle();
-   //         fence.Tapped += fence_Tapped;
+            //         fence.Tapped += fence_Tapped;
 
             fence.Width = 30;
             fence.Height = 30;
@@ -342,13 +249,13 @@ namespace lab3
 
             MapControl.SetLocation(fence, point);
             MapControl.SetNormalizedAnchorPoint(fence, new Point(1.0, 0.5));
-     
+
 
             myMap.Children.Add(fence);
 
-            fence.Tapped += async(o, args) =>
+            fence.Tapped += async (o, args) =>
             {
-                MessageDialog myDialog = new MessageDialog( "You clicked on something");
+                MessageDialog myDialog = new MessageDialog("You clicked on something");
                 myDialog.ShowAsync();
             };
 
@@ -674,6 +581,7 @@ namespace lab3
             myMap.MapElements.Add(henr);
 
             #endregion
+        }
 
         private void Button_Tapped(object sender, TappedRoutedEventArgs e)
         {
@@ -681,6 +589,5 @@ namespace lab3
             Geopoint newPoint = new Geopoint(fencePos);
             MapControl.SetLocation(fence, newPoint);
         }
-    }
     }
 }
