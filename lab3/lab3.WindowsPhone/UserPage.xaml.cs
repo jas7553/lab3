@@ -74,10 +74,6 @@ namespace lab3
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
             Tuple<String, IEnumerable<Message>> args = (Tuple<String, IEnumerable<Message>>)e.NavigationParameter;
             this.user = await SampleDataSource.GetUserAsync(args.Item1);
-            Debug.WriteLine(user);
-            Debug.WriteLine(user.Email);
-            Debug.WriteLine(user.FirstName);
-            Debug.WriteLine(user.LastName);
 
             List<Message> msgs = args.Item2.ToList();
             msgs.Sort((x, y) => x.Ts.CompareTo(y.Ts));
@@ -133,8 +129,6 @@ namespace lab3
 
         async private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("sending...");
-
             String msg = MessageBox.Text;
             if (msg.Equals(""))
             {
@@ -148,7 +142,6 @@ namespace lab3
                         new KeyValuePair<string, string>("to", this.user.Email),
                     };
             var response = await API.sendCommand(parameters);
-            Debug.WriteLine(response);
             MessageBox.Text = "";
 
             IEnumerable<Message> messages = await SampleDataSource.GetMessageAsync(user.Email);

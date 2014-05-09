@@ -172,7 +172,6 @@ namespace lab3
         async private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
             String userEmail = ((User)e.ClickedItem).Email;
-            Debug.WriteLine(userEmail);
             IEnumerable<Message> messages = await SampleDataSource.GetMessageAsync(userEmail);
             Tuple<String, IEnumerable<Message>> args = new Tuple<string, IEnumerable<Message>>(userEmail, messages);
             if (!Frame.Navigate(typeof(UserPage), args))
