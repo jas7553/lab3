@@ -18,19 +18,22 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
+using System.Diagnostics;
+
 // The Universal Hub Application project template is documented at http://go.microsoft.com/fwlink/?LinkID=391955
 
 namespace lab3
 {
     /// <summary>
-    /// A page that displays details for a single user.
+    /// A page that displays details for a single item within a group.
     /// </summary>
-    public sealed partial class ItemPage : Page
+    public sealed partial class UserPage : Page
     {
         private readonly NavigationHelper navigationHelper;
         private readonly ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private User user;
 
-        public ItemPage()
+        public UserPage()
         {
             this.InitializeComponent();
 
@@ -69,8 +72,24 @@ namespace lab3
         private async void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            var item = await SampleDataSource.GetItemAsync((string)e.NavigationParameter);
-            this.DefaultViewModel["Item"] = item;
+            Tuple<String, IEnumerable<Message>> args = (Tuple<String, IEnumerable<Message>>)e.NavigationParameter;
+            this.user = await SampleDataSource.GetUserAsync(args.Item1);
+            Debug.WriteLine(user);
+            Debug.WriteLine(user.Email);
+            Debug.WriteLine(user.FirstName);
+            Debug.WriteLine(user.LastName);
+
+            List<Message> msgs = args.Item2.ToList();
+            msgs.Sort((x, y) => x.Ts.CompareTo(y.Ts));
+
+            this.DefaultViewModel["Messages"] = msgs;
+            Header.Text = this.user.ToString();
+            
+            chathistorylist.UpdateLayout();
+            chathistorylist.ScrollIntoView(msgs.Last());
+
+            //var item = await SampleDataSource.GetItemAsync((string)e.NavigationParameter);
+            //this.DefaultViewModel["Item"] = item;
         }
 
         /// <summary>
@@ -111,5 +130,42 @@ namespace lab3
         }
 
         #endregion
+
+        async private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("sending...");
+
+            String msg = MessageBox.Text;
+            if (msg.Equals(""))
+            {
+                return;
+            }
+
+            var parameters = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("command", "sendMessage"),
+                        new KeyValuePair<string, string>("message", msg),
+                        new KeyValuePair<string, string>("to", this.user.Email),
+                    };
+            var response = await API.sendCommand(parameters);
+            Debug.WriteLine(response);
+            MessageBox.Text = "";
+
+            IEnumerable<Message> messages = await SampleDataSource.GetMessageAsync(user.Email);
+            List<Message> msgs = messages.ToList();
+            msgs.Sort((x, y) => x.Ts.CompareTo(y.Ts));
+            this.DefaultViewModel["Messages"] = msgs;
+
+            chathistorylist.UpdateLayout();
+            chathistorylist.ScrollIntoView(msgs.Last());
+        }
+
+        private void MessageBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key.ToString().Equals("Enter"))
+            {
+                Button_Click(sender, e);
+            }
+        }
     }
 }

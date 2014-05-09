@@ -21,6 +21,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)UserControls\MyUserControl1.xaml.cs">
       <DependentUpon>MyUserControl1.xaml</DependentUpon>
     </Compile>
+    <Content Include="$(MSBuildThisFileDirectory)DataModel\SampleData3.json" />
     <Content Include="$(MSBuildThisFileDirectory)DataModel\SampleData2.json" />
     <Content Include="$(MSBuildThisFileDirectory)DataModel\SampleData.json" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\LightGray.png" />

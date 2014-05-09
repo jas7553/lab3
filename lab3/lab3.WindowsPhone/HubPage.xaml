@@ -8,6 +8,7 @@
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
     d:DataContext="{Binding Source={d:DesignData Source=../lab3.Shared/DataModel/SampleData2.json, Type=data:SampleDataSource}}"
     xmlns:data="using:lab3.Data"
+    xmlns:maps="using:Windows.UI.Xaml.Controls.Maps"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -45,6 +46,22 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+                </DataTemplate>
+            </HubSection>
+
+            <HubSection Header="Map">
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition Height="50"></RowDefinition>
+                        </Grid.RowDefinitions>
+
+                        <maps:MapControl Loaded="MyMap_OnLoaded" x:Name="MyMap" Grid.Row="0">
+
+                        </maps:MapControl>
+                        <Button Grid.Row="1" Tapped="Button_Tapped">Move</Button>
+                    </Grid>
                 </DataTemplate>
             </HubSection>
 

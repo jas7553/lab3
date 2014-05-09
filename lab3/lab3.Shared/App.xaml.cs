@@ -129,6 +129,8 @@ namespace lab3
 
         void Login_loginClicked(object sender, EventArgs e)
         {
+             
+
             this.popup.IsOpen = false;
         }
 

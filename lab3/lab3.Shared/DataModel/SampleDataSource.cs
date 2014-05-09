@@ -95,6 +95,43 @@ namespace lab3.Data
             return this.FirstName + " " + this.LastName;
         }
     }
+    
+    /// <summary>
+    /// Generic user data model.
+    /// </summary>
+    public class Message
+    {
+        public Message(String msgType, String msg, String ts, String firstName, String lastName, String email)
+        {
+            this.MsgType = msgType;
+            this.Msg = msg;
+            this.Ts = ts;
+            this.FirstName = firstName;
+            this.LastName = lastName;
+            this.Email = email;
+            if (this.MsgType.Equals("from"))
+            {
+                this.Alignment = "Right";
+            }
+            else
+            {
+                this.Alignment = "Left";
+            }
+        }
+
+        public string MsgType { get; private set; }
+        public string Msg { get; private set; }
+        public string Ts { get; private set; }
+        public string FirstName { get; private set; }
+        public string LastName { get; private set; }
+        public string Email { get; private set; }
+        public string Alignment { get; private set; }
+
+        public override string ToString()
+        {
+            return this.FirstName + " " + this.LastName + " said: " + this.Msg;
+        }
+    }
 
     /// <summary>
     /// Creates a collection of groups and items with content read from a static json file.
@@ -118,6 +155,15 @@ namespace lab3.Data
             get { return this._users; }
         }
 
+        private ObservableCollection<Message> _messages = new ObservableCollection<Message>();
+        public ObservableCollection<Message> Messages
+        {
+            get
+            {
+                return this._messages;
+            }
+        }
+
         public static async Task<IEnumerable<SampleDataGroup>> GetGroupsAsync()
         {
             await _sampleDataSource.GetSampleDataAsync();
@@ -128,6 +174,7 @@ namespace lab3.Data
         public static async Task<SampleDataGroup> GetGroupAsync(string uniqueId)
         {
             await _sampleDataSource.GetSampleDataAsync();
+
             // Simple linear search is acceptable for small data sets
             var matches = _sampleDataSource.Groups.Where((group) => group.UniqueId.Equals(uniqueId));
             if (matches.Count() == 1) return matches.First();
@@ -137,10 +184,35 @@ namespace lab3.Data
         public static async Task<SampleDataItem> GetItemAsync(string uniqueId)
         {
             await _sampleDataSource.GetSampleDataAsync();
+
             // Simple linear search is acceptable for small data sets
             var matches = _sampleDataSource.Groups.SelectMany(group => group.Items).Where((item) => item.UniqueId.Equals(uniqueId));
             if (matches.Count() == 1) return matches.First();
             return null;
+        }
+
+        public static async Task<User> GetUserAsync(string email)
+        {
+            await _sampleDataSource.GetUsersAsyncc();
+
+            // Simple linear search is acceptable for small data sets
+            var matches = _sampleDataSource.Users.Where(user => user.Email.Equals(email)).Select(user => user);
+            if (matches.Count() == 1) return matches.First();
+            return null;
+        }
+
+        public static async Task<IEnumerable<Message>> GetMessageAsync(string email)
+        {
+            await _sampleDataSource.GetMessagesAsyncc();
+
+            var messages =
+                from m in _sampleDataSource.Messages
+                where m.Email.Equals(email)
+                select m;
+
+            // Simple linear search is acceptable for small data sets
+            var matches = _sampleDataSource.Messages.Where(message => message.Email.Equals(email)).Select(message => message);
+            return messages.ToList();
         }
 
         public static async Task<IEnumerable<User>> GetUsersAsync()
@@ -184,17 +256,14 @@ namespace lab3.Data
                 this.Groups.Add(group);
             }
         }
-
         private async Task GetUsersAsyncc()
         {
             if (this._users.Count != 0)
                 return;
-            
+
             var parameters = new List<KeyValuePair<string, string>>
                     {
-                        new KeyValuePair<string, string>("command", "getUsers"),
-                        new KeyValuePair<string, string>("email", "derp@derp.gov"),
-                        new KeyValuePair<string, string>("password", "password"),
+                        new KeyValuePair<string, string>("command", "getUsers")
                     };
             string jsonText = await API.sendCommand(parameters);
             JsonArray jsonArray = JsonArray.Parse(jsonText);
@@ -205,8 +274,32 @@ namespace lab3.Data
                 User user = new User(groupObject["first_name"].GetString(),
                                      groupObject["last_name"].GetString(),
                                      groupObject["email"].GetString());
-                
-                this.Users.Add(user);
+                if (user.Email.Equals("derp@derp.gov") || user.Email.Equals("derp2@derp.gov"))
+                {
+                    this.Users.Add(user);
+                }
+            }
+        }
+        private async Task GetMessagesAsyncc()
+        {
+            List<KeyValuePair<string, string>> parameters = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("command", "getMessages")
+                    };
+
+            string jsonText = await API.sendCommand(parameters);
+            JsonArray jsonArray = JsonArray.Parse(jsonText);
+
+            foreach (JsonValue groupValue in jsonArray)
+            {
+                JsonObject groupObject = groupValue.GetObject();
+                Message message = new Message(groupObject["msg_type"].GetString(),
+                                           groupObject["message"].GetString(),
+                                           groupObject["ts"].GetString(),
+                                           groupObject["first_name"].GetString(),
+                                           groupObject["last_name"].GetString(),
+                                           groupObject["email"].GetString());
+                this.Messages.Insert(0, message);
             }
         }
     }
