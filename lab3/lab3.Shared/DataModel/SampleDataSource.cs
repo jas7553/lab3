@@ -84,11 +84,13 @@ namespace lab3.Data
             this.FirstName = firstName;
             this.LastName = lastName;
             this.Email = email;
+            this.FullName = this.FirstName + " " + this.LastName;
         }
 
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
         public string Email { get; private set; }
+        public string FullName { get; private set; }
 
         public override string ToString()
         {
@@ -97,7 +99,7 @@ namespace lab3.Data
     }
     
     /// <summary>
-    /// Generic user data model.
+    /// Generic message data model.
     /// </summary>
     public class Message
     {
@@ -111,11 +113,11 @@ namespace lab3.Data
             this.Email = email;
             if (this.MsgType.Equals("from"))
             {
-                this.Alignment = "Right";
+                this.Alignment = "Left";
             }
             else
             {
-                this.Alignment = "Left";
+                this.Alignment = "Right";
             }
         }
 
@@ -130,6 +132,35 @@ namespace lab3.Data
         public override string ToString()
         {
             return this.FirstName + " " + this.LastName + " said: " + this.Msg;
+        }
+    }
+
+    /// <summary>
+    /// Generic location data model.
+    /// </summary>
+    public class Location
+    {
+        public Location(String firstName, String lastName, String email, String latitude, String longitude, String accuracy, String lastUpdated)
+        {
+            this.FirstName = firstName;
+            this.LastName = lastName;
+            this.Email = email;
+            this.Latitude = latitude;
+            this.Longitude = longitude;
+            this.Accuracy = accuracy;
+            this.LastUpdated = lastUpdated;
+        }
+        public string Email { get; private set; }
+        public string FirstName { get; private set; }
+        public string LastName { get; private set; }
+        public string Latitude { get; private set; }
+        public string Longitude { get; private set; }
+        public string Accuracy { get; private set; }
+        public string LastUpdated { get; private set; }
+
+        public override string ToString()
+        {
+            return this.FirstName + " " + this.LastName + " is at (" + this.Latitude + ", " + this.Longitude + ")";
         }
     }
 
@@ -158,10 +189,13 @@ namespace lab3.Data
         private ObservableCollection<Message> _messages = new ObservableCollection<Message>();
         public ObservableCollection<Message> Messages
         {
-            get
-            {
-                return this._messages;
-            }
+            get { return this._messages; }
+        }
+
+        private ObservableCollection<Location> _locations = new ObservableCollection<Location>();
+        public ObservableCollection<Location> Locations
+        {
+            get { return this._locations; }
         }
 
         public static async Task<IEnumerable<SampleDataGroup>> GetGroupsAsync()
@@ -222,6 +256,13 @@ namespace lab3.Data
             return _sampleDataSource.Users;
         }
 
+        public static async Task<IEnumerable<Location>> GetLocationsAsync()
+        {
+            await _sampleDataSource.GetLocationsAsyncc();
+
+            return _sampleDataSource.Locations;
+        }
+
         private async Task GetSampleDataAsync()
         {
             if (this._groups.Count != 0)
@@ -256,6 +297,7 @@ namespace lab3.Data
                 this.Groups.Add(group);
             }
         }
+        
         private async Task GetUsersAsyncc()
         {
             if (this._users.Count != 0)
@@ -266,20 +308,28 @@ namespace lab3.Data
                         new KeyValuePair<string, string>("command", "getUsers")
                     };
             string jsonText = await API.sendCommand(parameters);
+            if (jsonText == null)
+            {
+                return;
+            }
             JsonArray jsonArray = JsonArray.Parse(jsonText);
 
+            List<User> userz = new List<User>();
             foreach (JsonValue groupValue in jsonArray)
             {
                 JsonObject groupObject = groupValue.GetObject();
                 User user = new User(groupObject["first_name"].GetString(),
                                      groupObject["last_name"].GetString(),
                                      groupObject["email"].GetString());
-                if (user.Email.Equals("derp@derp.gov") || user.Email.Equals("derp2@derp.gov"))
-                {
-                    this.Users.Add(user);
-                }
+                userz.Add(user);
+            }
+            userz = userz.OrderBy(o => o.FullName).ToList();
+            foreach (User u in userz)
+            {
+                this.Users.Add(u);
             }
         }
+
         private async Task GetMessagesAsyncc()
         {
             List<KeyValuePair<string, string>> parameters = new List<KeyValuePair<string, string>>
@@ -288,8 +338,13 @@ namespace lab3.Data
                     };
 
             string jsonText = await API.sendCommand(parameters);
+            if (jsonText == null)
+            {
+                return;
+            }
             JsonArray jsonArray = JsonArray.Parse(jsonText);
 
+            this.Messages.Clear();
             foreach (JsonValue groupValue in jsonArray)
             {
                 JsonObject groupObject = groupValue.GetObject();
@@ -300,6 +355,47 @@ namespace lab3.Data
                                            groupObject["last_name"].GetString(),
                                            groupObject["email"].GetString());
                 this.Messages.Insert(0, message);
+            }
+        }
+
+        private async Task GetLocationsAsyncc()
+        {
+            List<KeyValuePair<string, string>> parameters = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("command", "getLocations")
+                    };
+
+            string jsonText = await API.sendCommand(parameters);
+            if (jsonText == null)
+            {
+                return;
+            }
+            JsonArray jsonArray = JsonArray.Parse(jsonText);
+
+            foreach (JsonValue groupValue in jsonArray)
+            {
+                JsonObject groupObject = groupValue.GetObject();
+                Location location = new Location(groupObject["first_name"].GetString(),
+                                           groupObject["last_name"].GetString(),
+                                           groupObject["email"].GetString(),
+                                           groupObject["latitude"].GetString(),
+                                           groupObject["longitude"].GetString(),
+                                           groupObject["accuracy"].GetString(),
+                                           groupObject["lastUpdated"].GetString());
+                try
+                {
+                    if (Convert.ToDecimal(location.Latitude) >= -90 &&
+                        Convert.ToDecimal(location.Latitude) <= 90 &&
+                        Convert.ToDecimal(location.Longitude) >= -180 &&
+                        Convert.ToDecimal(location.Latitude) <= 180)
+                    {
+                        this.Locations.Insert(0, location);
+                    }
+                }
+                catch (FormatException)
+                {
+                    // better ignore this, just to be safe
+                }
             }
         }
     }

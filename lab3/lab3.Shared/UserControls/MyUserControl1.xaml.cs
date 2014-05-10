@@ -51,7 +51,12 @@ namespace lab3
                         new KeyValuePair<string, string>("password", password)
                     };
             var response = await API.sendCommand(parameters);
-            if (response.Equals("Invalid user"))
+            if (response == null)
+            {
+                errorTextBlock.Visibility = Visibility.Visible;
+                errorTextBlock.Text = "Check your network connection";
+            }
+            else if (response.Equals("Invalid user"))
             {
                 errorTextBlock.Visibility = Visibility.Visible;
                 errorTextBlock.Text = "Bad Login";

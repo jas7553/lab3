@@ -24,7 +24,16 @@ namespace lab3
             String serverUrl = "http://www.cs.rit.edu/~jsb/2135/ProgSkills/Labs/Messenger/api.php";
             FormUrlEncodedContent encodedParameters = new FormUrlEncodedContent(parameters);
             HttpResponseMessage response = await httpClient.PostAsync(serverUrl, encodedParameters);
-            response.EnsureSuccessStatusCode();
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException)
+            {
+                return null;
+            }
+
             return await response.Content.ReadAsStringAsync();
         }
     }

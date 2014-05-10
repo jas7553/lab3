@@ -82,7 +82,10 @@ namespace lab3
             Header.Text = this.user.ToString();
             
             chathistorylist.UpdateLayout();
-            chathistorylist.ScrollIntoView(msgs.Last());
+            if (msgs.Count > 0)
+            {
+                chathistorylist.ScrollIntoView(msgs.Last());
+            }
 
             //var item = await SampleDataSource.GetItemAsync((string)e.NavigationParameter);
             //this.DefaultViewModel["Item"] = item;
@@ -142,6 +145,10 @@ namespace lab3
                         new KeyValuePair<string, string>("to", this.user.Email),
                     };
             var response = await API.sendCommand(parameters);
+            if (response == null)
+            {
+                return;
+            }
             MessageBox.Text = "";
 
             IEnumerable<Message> messages = await SampleDataSource.GetMessageAsync(user.Email);
@@ -150,7 +157,10 @@ namespace lab3
             this.DefaultViewModel["Messages"] = msgs;
 
             chathistorylist.UpdateLayout();
-            chathistorylist.ScrollIntoView(msgs.Last());
+            if (msgs.Count > 0)
+            {
+                chathistorylist.ScrollIntoView(msgs.Last());
+            }
         }
 
         private void MessageBox_KeyDown(object sender, KeyRoutedEventArgs e)

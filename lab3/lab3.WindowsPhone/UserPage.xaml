@@ -44,7 +44,10 @@
 
         <!--TODO: Content should be placed within the following grid 
                   to show details for the current item -->
-        <Grid Grid.Row="1" x:Name="ContentRoot">
+        <Grid Width="400" Grid.Row="1" x:Name="ContentRoot">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400" />
+            </Grid.ColumnDefinitions>
             <ListView 
                         AutomationProperties.AutomationId="ItemListViewSection4"
                         AutomationProperties.Name="Items In Group"
@@ -52,12 +55,13 @@
                         ItemsSource="{Binding Messages}"
                         ContinuumNavigationTransitionInfo.ExitElementContainer="True"
                         x:Name="chathistorylist"
+                        Width="400"
                         MaxHeight="300">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel>
-                            <TextBlock Text="{Binding Msg}" HorizontalAlignment="{Binding Alignment}" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
-                            <TextBlock Text="{Binding Ts}"  HorizontalAlignment="{Binding Alignment}" Style="{ThemeResource ListViewItemContentTextBlockStyle}"/>
+                        <StackPanel Width="400">
+                            <TextBlock TextAlignment="{Binding Alignment}" Width="400" TextWrapping="WrapWholeWords" Grid.Column="0" Text="{Binding Msg}" HorizontalAlignment="{Binding Alignment}" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
+                            <TextBlock TextAlignment="{Binding Alignment}" Width="400" Grid.Column="0" Text="{Binding Ts}"  HorizontalAlignment="{Binding Alignment}" Style="{ThemeResource ListViewItemContentTextBlockStyle}"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>

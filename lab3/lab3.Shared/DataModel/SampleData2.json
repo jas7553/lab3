@@ -3,13 +3,15 @@
         {
             "Email":"jsb@cs.rit.edu",
             "FirstName":"Jeremy",
-            "LastName":"Brown"
+            "LastName":"Brown",
+            "FullName":"Jeremy Brown"
         },
 
         {
             "Email":"jxbvcs@rit.edu",
             "FirstName":"J",
-            "LastName":"Bro"
+            "LastName":"Bro",
+            "FullName":"J Bro"
         }
     ]
  }
