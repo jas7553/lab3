@@ -1,4 +1,11 @@
-﻿using lab3.Common;
+﻿/**
+ * Filename: UserPage.xaml.cs
+ * Author: Jason A Smith <jas7553>
+ * Assignment: CSCI-641-01 Lab 03
+ * Date: 05/09/2014
+ */
+
+using lab3.Common;
 using lab3.Data;
 
 using System;
@@ -74,6 +81,11 @@ namespace lab3
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
             Tuple<String, IEnumerable<Message>> args = (Tuple<String, IEnumerable<Message>>)e.NavigationParameter;
             this.user = await SampleDataSource.GetUserAsync(args.Item1);
+
+            if (this.user == null)
+            {
+                Debug.WriteLine("bad user: " + this.user);
+            }
 
             List<Message> msgs = args.Item2.ToList();
             msgs.Sort((x, y) => x.Ts.CompareTo(y.Ts));

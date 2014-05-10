@@ -1,4 +1,11 @@
-﻿using lab3.Common;
+﻿/**
+ * Filename: SectionPage.cs
+ * Author: Jason A Smith <jas7553>
+ * Assignment: CSCI-641-01 Lab 03
+ * Date: 05/09/2014
+ */
+
+using lab3.Common;
 using lab3.Data;
 
 using System;

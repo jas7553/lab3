@@ -1,4 +1,11 @@
-﻿using System;
+﻿/**
+ * Filename: MyUserControl1.cs
+ * Author: Jason A Smith <jas7553>
+ * Assignment: CSCI-641-01 Lab 03
+ * Date: 05/09/2014
+ */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,8 +35,9 @@ namespace lab3
         {
             this.InitializeComponent();
 
-            emailAddressTextBox.Text = "derp@derp.gov";
-            passwordTextBox.Password = "password";
+            var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            localSettings.Values.Remove("username");
+            localSettings.Values.Remove("password");
         }
 
         async private void btnOK_Click(object sender, RoutedEventArgs e)
@@ -44,17 +52,18 @@ namespace lab3
                 return;
             }
 
+            var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            localSettings.Values["username"] = username;
+            localSettings.Values["password"] = password;
             var parameters = new List<KeyValuePair<string, string>>
                     {
-                        new KeyValuePair<string, string>("command", "setLocation"),
-                        new KeyValuePair<string, string>("email", username),
-                        new KeyValuePair<string, string>("password", password)
+                        new KeyValuePair<string, string>("command", "setLocation")
                     };
             var response = await API.sendCommand(parameters);
             if (response == null)
             {
                 errorTextBlock.Visibility = Visibility.Visible;
-                errorTextBlock.Text = "Check your network connection";
+                errorTextBlock.Text = "Bad Login";
             }
             else if (response.Equals("Invalid user"))
             {
@@ -63,7 +72,6 @@ namespace lab3
             }
             else
             {
-                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
                 localSettings.Values["username"] = username;
                 localSettings.Values["password"] = password;
 

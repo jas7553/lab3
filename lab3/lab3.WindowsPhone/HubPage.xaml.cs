@@ -1,4 +1,11 @@
-﻿using lab3.Common;
+﻿/**
+ * Filename: HubPage.xaml.cs
+ * Author: Jason A Smith <jas7553>
+ * Assignment: CSCI-641-01 Lab 03
+ * Date: 05/09/2014
+ */
+
+using lab3.Common;
 using lab3.Data;
 
 using System;
@@ -43,20 +50,10 @@ namespace lab3
         private readonly ObservableDictionary defaultViewModel = new ObservableDictionary();
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
 
-        //private Windows.UI.Xaml.Shapes.Rectangle fence;
-        //private BasicGeoposition fencePos;
         private MapControl myMap;
 
         public HubPage()
         {
-            /*
-            /// Holds the push channel that is created or found.
-            HttpNotificationChannel pushChannel;
-
-            // The name of our push channel.
-            string channelName = "Lab3Channel";
-            */
-
             InitializeComponent();
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
